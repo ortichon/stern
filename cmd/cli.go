@@ -145,6 +145,12 @@ func Run() {
 }
 
 func parseConfig(args []string) (*stern.Config, error) {
+        type VotiroLog struct {
+                Timestamp: string
+                Level: string
+                MessageTemplate: string
+        }
+        
 	kubeConfig, err := getKubeConfig()
 	if err != nil {
 		return nil, err
@@ -258,6 +264,11 @@ func parseConfig(args []string) (*stern.Config, error) {
 		"color": func(color color.Color, text string) string {
 			return color.SprintFunc()(text)
 		},
+		"votiro": func(in interface{}) (string, error) {
+                        var votiroLog VotiroLog
+                        json.Unmarshal([]byte(in), &votiroLog)
+                        return votiroLog, nil
+                },
 	}
 	template, err := template.New("log").Funcs(funs).Parse(t)
 	if err != nil {
